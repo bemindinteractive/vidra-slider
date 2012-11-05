@@ -11,6 +11,7 @@
 
     var methods = {
         init: function (config) {
+            trace("Vidra.Slider.Initializing...");
 
             return this.each(function () {
 
@@ -24,28 +25,33 @@
                 var next = wrapper.children(".next");
                 var prev = wrapper.children(".prev");
                 var container = wrapper.children(options.container);
-                var navigation = wrapper.children(options.nav);
-                var navigation_item = navigation.find('li > a');
-
-                //var timer;
-                var count = container.children(options.item).length;
 
                 /* Setup Slider */
+                var count = container.children(options.item).length;
+                trace("Vidra.Slider.elements: " + count);
+
+                container.children('li:first-child').addClass("active");
                 var item_width = $(options.item).outerWidth(true);
 
                 if (options.transition == "slide") {
                     container.width(item_width * count);
                     wrapper.addClass('overflow-hidden');
 
-                    $(options.item).each(function () {
+                    container.children(options.item).each(function () {
                         $(this).addClass('float-left');
                     });
+                } else if (options.transition == "fade") {
+                    container.children(options.item).each(function () {
+                        $(this).css("display", "none");
+                    });
+                    container.children('li:first-child').css("display", "block");
                 }
 
                 /* Setup Timer */
-                if (options.auto) {
+                if (options.auto && count > 1) {
                     slider.bind("tick", function (e) {
-   
+                        trace("Vidra.Slider.Autoscrolling");
+
                         var wrapper = slider.children(options.wrapper);
                         var container = wrapper.children(options.container);
                         var count = container.children(options.item).length;
@@ -64,6 +70,33 @@
                 }
 
                 /* Setup Navigator */
+                var navigation, navigation_width = 0; ;
+                if (options.nav.indexOf("#") >= 0) {
+                    navigation = $(options.nav);
+                } else {
+                    navigation = wrapper.children(options.nav);
+                }
+                var navigation_item = navigation.find('li');
+                var navigation_item_anchor = navigation.find('li > a');
+
+                navigation.find('li:first-child').addClass("active");
+                navigation_item.each(function () {
+                    navigation_width += $(this).outerWidth(true);
+                });
+
+                navigation.css("margin-left", -navigation_width / 2);
+
+                navigation_item_anchor.click(function (e) {
+                    e.preventDefault();
+
+                    var index = $(this).attr('rel');
+                    methods.transition([index - 1], slider);
+
+                    if (options.auto) {
+                        methods.reset(slider);
+                    }
+                });
+
                 next.click(function (e) {
                     e.preventDefault();
 
@@ -86,28 +119,24 @@
                     }
                 });
 
-                navigation_item.click(function (e) {
-                    e.preventDefault();
-
-                    var index = $(this).attr('rel');
-                    methods.transition([index - 1], slider);
-
-                    if (options.auto) {
-                        methods.reset(slider);
-                    }
-                });
-
             });
         },
         reset: function (slider) {
             clearTimeout(slider.timer);
         },
         transition: function (index, slider) {
+            trace("Vidra.Slider.Transition to: " + index);
 
             //var slider = this;
             var wrapper = slider.children(options.wrapper);
             var container = wrapper.children(options.container);
-            var navigation = wrapper.children(options.nav);
+
+            var navigation;
+            if (options.nav.indexOf("#") >= 0) {
+                navigation = $(options.nav);
+            } else {
+                navigation = wrapper.children(options.nav);
+            }
 
             var currentIndex = container.children('li.active').index();
 
@@ -116,6 +145,7 @@
 
             /* Setup Transition */
             count = container.children(options.item).length;
+            trace("Vidra.Slider.elements: " + count);
 
             /* Animation */
             if (options.transition == "fade") {
@@ -148,6 +178,7 @@
                     }
                 }
             }
+            current = container.children('li').eq(index);
 
             container.children('li').removeClass('active');
             current.addClass('active');
