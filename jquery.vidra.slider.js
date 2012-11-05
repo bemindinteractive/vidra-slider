@@ -11,8 +11,7 @@
 
     var methods = {
         init: function (config) {
-            trace("Vidra.Slider.Initializing...");
-
+        
             return this.each(function () {
 
                 var $this = $(this);
@@ -28,7 +27,6 @@
 
                 /* Setup Slider */
                 var count = container.children(options.item).length;
-                trace("Vidra.Slider.elements: " + count);
 
                 container.children('li:first-child').addClass("active");
                 var item_width = $(options.item).outerWidth(true);
@@ -50,7 +48,6 @@
                 /* Setup Timer */
                 if (options.auto && count > 1) {
                     slider.bind("tick", function (e) {
-                        trace("Vidra.Slider.Autoscrolling");
 
                         var wrapper = slider.children(options.wrapper);
                         var container = wrapper.children(options.container);
@@ -125,7 +122,6 @@
             clearTimeout(slider.timer);
         },
         transition: function (index, slider) {
-            trace("Vidra.Slider.Transition to: " + index);
 
             //var slider = this;
             var wrapper = slider.children(options.wrapper);
@@ -145,7 +141,6 @@
 
             /* Setup Transition */
             count = container.children(options.item).length;
-            trace("Vidra.Slider.elements: " + count);
 
             /* Animation */
             if (options.transition == "fade") {
